@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuperAtivo Fitness — Semi-private classes, coaching and nutrition on Ashton Rd</title>
+<meta name="description" content="Gym in Northeast Philadelphia since 2015. Semi-private classes, online coaching and personalized meal plans with coaches Witor, Jhennyffer and Larissa. 9350 Ashton Rd.">
+<link rel="preload" href="assets/geist.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:Geist;src:url(assets/geist.woff2) format("woff2");font-weight:100 900;font-display:swap}
+:root{--bg:#F5F5F3;--ink:#000;--soft:#4F4E4B;--red:#AA0100;--pad:clamp(20px,4vw,56px)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color:var(--ink);font-family:Geist,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:4px}
+h1,h2,h3{font-weight:500;letter-spacing:-.035em;line-height:1.02;text-wrap:balance}
+
+/* ---------- one WebGL stage behind the page (walls, logo windows, objects) ---------- */
+#stage{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block;background:#F5F5F3}
+[data-fade]>*{opacity:var(--o,1)}
+
+/* ---------- header ---------- */
+.top{position:fixed;inset:0 0 auto 0;z-index:40;display:flex;align-items:center;justify-content:space-between;padding:18px var(--pad);transition:background .35s,color .35s;color:var(--ink)}
+.top.solid{background:color-mix(in srgb,var(--hbg,var(--bg)) 84%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.top.ondk{color:#fff}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;letter-spacing:-.02em;font-size:17px}
+.brand i{width:30px;height:26px;background:var(--red);clip-path:polygon(50% 0,100% 100%,0 100%);display:grid;place-items:end center}
+.brand i img{width:20px;margin-bottom:3px}
+.nav{display:flex;gap:28px;font-size:15px}
+.nav a{text-decoration:none;opacity:.72}.nav a:hover,.nav a.on{opacity:1}
+.prog{position:absolute;left:0;bottom:0;height:2px;background:var(--red);width:0}
+
+/* ---------- sections ---------- */
+main{position:relative;z-index:2}
+footer{z-index:2}
+.ch{position:relative;min-height:100svh;padding:120px var(--pad) 110px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:center}
+.ch .txt{max-width:560px;position:relative;z-index:6}
+.slot{display:none}
+.ch.dark{color:#fff}
+.ch .k{font-size:15px;color:var(--red);font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.ch .k::before{content:"";width:14px;height:12px;background:currentColor;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.ch.dark .k{color:#fff}
+.ch h2{font-size:clamp(38px,4.6vw,72px)}
+.lede{margin-top:20px;font-size:clamp(17px,1.3vw,20px);line-height:1.5;color:var(--soft);max-width:46ch}
+.dark .lede{color:rgba(255,255,255,.78)}
+.pill{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;text-decoration:none;font-weight:500;font-size:15px;padding:13px 20px;border-radius:999px;white-space:nowrap;transition:background .2s}
+.pill:hover{background:#8f0100}
+.pill.w{background:#fff;color:#000}
+
+/* hero */
+.hero{grid-template-columns:minmax(0,5fr) minmax(0,6fr);min-height:100svh;align-items:start;padding-top:clamp(110px,15vh,150px)}
+.hero h1{font-size:clamp(42px,5vw,80px)}
+.hero .sub{margin-top:18px;font-size:clamp(16px,1.25vw,19px);color:var(--soft);max-width:36ch;line-height:1.45}
+.hint{position:absolute;left:var(--pad);bottom:96px;font-size:13px;color:var(--soft);display:flex;align-items:center;gap:12px}
+.hint i{width:40px;height:1px;background:var(--red)}
+
+/* facts list (used in several chapters) */
+.facts{margin-top:30px;display:grid;gap:14px;max-width:520px}
+.facts div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.18);font-size:16px;line-height:1.45}
+.facts dt,.facts b{font-weight:600}
+.facts span{color:rgba(255,255,255,.8)}
+.ch:not(.dark) .facts div{border-top-color:#DAD9D5}.ch:not(.dark) .facts span{color:var(--soft)}
+
+/* day picker (dark) */
+.picker{margin-top:30px}
+.when{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));background:rgba(255,255,255,.1);border-radius:999px;padding:4px;margin-bottom:10px;max-width:420px}
+.seg{position:relative;z-index:1;appearance:none;border:0;background:none;font:inherit;font-size:15px;font-weight:500;padding:11px 10px;border-radius:999px;cursor:pointer;color:rgba(255,255,255,.75);transition:color .3s}
+.seg[aria-pressed=true]{color:#000}
+.seg-ink{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:999px;background:#fff;transition:transform .45s cubic-bezier(.3,.8,.2,1)}
+.when.pm .seg-ink{transform:translateX(100%)}
+.week{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.day{appearance:none;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.05);border-radius:14px;padding:14px 10px;text-align:left;font:inherit;color:#fff;cursor:pointer;min-height:104px;display:flex;flex-direction:column;justify-content:space-between;transition:background .2s,border-color .2s}
+.day .dn{font-weight:600;font-size:17px}
+.day .dt{font-size:12px;color:rgba(255,255,255,.7)}
+.day[aria-pressed=true]{background:var(--red);border-color:var(--red)}
+.day[aria-pressed=true] .dt{color:rgba(255,255,255,.9)}
+.day:disabled{opacity:.3;cursor:not-allowed}
+.total{margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;border-radius:18px;background:#fff;color:#000}
+.amt{font-size:36px;font-weight:500;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.amt small{font-size:15px;color:var(--soft);margin-left:6px;font-weight:400;letter-spacing:-.01em}
+.note{font-size:14px;color:var(--soft);margin-top:6px}
+.total .pill[aria-disabled=true]{background:#C9C8C4;pointer-events:none}
+.pay{margin-top:14px;font-size:14px;color:rgba(255,255,255,.7)}
+
+/* coaching steps + packages */
+.steps{margin-top:30px;display:grid;gap:0;max-width:520px;counter-reset:s}
+.steps li{list-style:none;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;padding:16px 0;border-top:1px solid rgba(255,255,255,.2);font-size:16px;line-height:1.45}
+.steps li::before{counter-increment:s;content:counter(s);font-weight:600;color:#fff;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.4);display:grid;place-items:center;font-size:14px}
+.steps b{display:block;font-weight:600}
+.steps span{color:rgba(255,255,255,.78)}
+.packs{margin-top:28px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:520px}
+.pack{border-radius:18px;padding:18px 20px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2)}
+.pack.hi{background:#fff;color:#000;border-color:#fff}
+.pack .p{font-size:40px;font-weight:500;letter-spacing:-.04em;line-height:1}
+.pack .n{font-size:14px;margin-top:6px;opacity:.75}
+.cta-row{margin-top:22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.cta-row small{font-size:14px;opacity:.75}
+
+/* story */
+.story{display:block;height:230vh;padding:0;overflow-x:clip}
+.story .stick{position:sticky;top:0;height:100svh;display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:56px;align-items:center;padding:100px var(--pad) 80px}
+.yr-num{font-weight:600;font-size:clamp(100px,15vw,230px);letter-spacing:-.06em;line-height:.85;color:var(--red);font-variant-numeric:tabular-nums}
+.yr-line{position:relative;margin-top:30px;height:2px;background:#E2E1DD;max-width:440px}
+.yr-line i{position:absolute;left:0;top:0;height:100%;width:0;background:var(--red)}
+.yr-line .marks{position:absolute;left:0;right:0;top:14px;display:flex;justify-content:space-between;font-size:13px;color:var(--soft)}
+.yr-cap{margin-top:52px;font-size:clamp(24px,2.4vw,36px);font-weight:500;letter-spacing:-.03em;line-height:1.12;max-width:20ch;min-height:2.3em}
+.yr-sum{margin-top:20px;font-size:16px;line-height:1.55;color:var(--soft);max-width:44ch}
+.stack{position:relative;aspect-ratio:3/4;width:100%;max-width:420px;justify-self:end}
+.stack figure{position:absolute;inset:0;border-radius:6px;overflow:hidden;box-shadow:0 30px 60px -30px rgba(40,0,0,.45)}
+.stack img{width:100%;height:100%;object-fit:cover}
+
+/* rules */
+.acc{margin-top:28px;max-width:560px;border-top:1px solid #D6D5D1}
+.acc details{border-bottom:1px solid #D6D5D1}
+.acc summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 0;font-size:19px;font-weight:500;letter-spacing:-.02em}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary i{flex:0 0 26px;height:26px;border-radius:50%;border:1px solid #BEBDB8;position:relative;transition:transform .3s,background .3s}
+.acc summary i::before,.acc summary i::after{content:"";position:absolute;left:50%;top:50%;width:10px;height:1.5px;background:currentColor;transform:translate(-50%,-50%)}
+.acc summary i::after{transform:translate(-50%,-50%) rotate(90deg);transition:transform .3s}
+.acc details[open] summary i{background:var(--red);border-color:var(--red);color:#fff}
+.acc details[open] summary i::after{transform:translate(-50%,-50%) rotate(0)}
+.acc .body{padding:0 0 20px;font-size:16px;line-height:1.6;color:#3d3d3a;display:grid;gap:8px;max-width:52ch}
+.acc .body p{position:relative;padding-left:18px}
+.acc .body p::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:6px;background:var(--red);clip-path:polygon(50% 0,100% 100%,0 100%)}
+
+/* hours */
+.chart{margin-top:30px;display:grid;gap:12px;max-width:600px}
+.row{display:grid;grid-template-columns:44px minmax(0,1fr) 128px;align-items:center;gap:14px;font-size:15px}
+.row .dn{color:var(--soft)}.row.today .dn{color:var(--ink);font-weight:600}
+.track{position:relative;height:14px;border-radius:999px;background:#E6E5E1}
+.so,.sc{position:absolute;top:0;bottom:0;border-radius:999px;transform-origin:left}
+.so{background:rgba(170,1,0,.22)}.sc{background:var(--red);top:3px;bottom:3px}
+.row .hrs{text-align:right;font-size:14px;color:#3d3d3a;font-variant-numeric:tabular-nums}
+.now{position:absolute;top:-8px;bottom:-8px;width:2px;background:#000}
+.now b{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-size:11px;line-height:1;font-weight:600;padding:3px 6px;border-radius:5px;background:var(--ink);color:#fff;white-space:nowrap;z-index:2}
+.scale{display:grid;grid-template-columns:44px minmax(0,1fr) 128px;gap:14px;font-size:12px;color:var(--soft)}
+.scale div{display:flex;justify-content:space-between}
+.legend{display:flex;gap:22px;margin-top:20px;font-size:14px;color:var(--soft)}
+.legend i{display:inline-block;width:22px;height:8px;border-radius:9px;margin-right:8px;vertical-align:1px}
+.legend .lo{background:rgba(170,1,0,.22)}.legend .hi{background:var(--red)}
+.where{margin-top:30px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 30px;max-width:560px;font-size:16px;line-height:1.45}
+.where .kk{font-size:13px;color:var(--soft);margin-bottom:4px}
+.where a{text-decoration:none;border-bottom:1px solid #C9C8C4}
+.rate{font-size:44px;font-weight:500;letter-spacing:-.04em;line-height:1}
+.stars{position:relative;display:inline-block;font-size:22px;letter-spacing:2px;color:#D8D7D3;margin-left:10px;vertical-align:6px;font-weight:400}
+.stars i{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:var(--red);font-style:normal;width:94%}
+
+/* footer */
+footer{position:relative;z-index:2;color:#fff;overflow:hidden;padding:110px var(--pad) 0;min-height:100svh;display:flex;flex-direction:column;justify-content:space-between}
+footer .fslot{display:block;height:40vh}
+footer .row2{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap}
+footer h2{font-size:clamp(30px,3.4vw,52px);max-width:16ch}
+footer .cols{display:flex;gap:56px;font-size:15px;line-height:1.7;color:rgba(255,255,255,.72)}
+footer .cols b{display:block;color:#fff;font-weight:600;margin-bottom:6px}
+.word{display:block;font-weight:600;letter-spacing:-.06em;line-height:.8;white-space:nowrap;margin-top:70px;margin-bottom:28px}
+.word .ch2{display:inline-block}
+.credit{padding:16px 0 24px;font-size:12px;color:rgba(255,255,255,.45)}
+
+/* bottom bar */
+.info{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:14px var(--pad) 18px;pointer-events:none;transition:opacity .3s,transform .3s}
+.info .fx{display:flex;gap:30px;font-size:15px;pointer-events:auto;transition:color .3s,opacity .3s}
+.info .fx em{font-style:normal;opacity:.7}
+body.dk .info .fx{color:#fff}
+.info.past .fx{opacity:0;pointer-events:none}
+.info .pill{pointer-events:auto;box-shadow:0 10px 30px -10px rgba(120,0,0,.55)}
+.info.hide{opacity:0;transform:translateY(20px)}.info.hide *{pointer-events:none}
+.act{display:none}
+.minfo{display:none}
+
+/* ---------- phone ---------- */
+@media (max-width:860px), (orientation:portrait) and (max-width:1100px){
+  .nav{display:none}
+  .ch,.hero{display:flex;flex-direction:column;padding:calc(var(--hb, calc(30svh + 19vw)) - 10px) 0 0;min-height:100svh}
+  /* panel dissolves into the 3D at both ends (a hard edge slid across the doorway as a flat bar) */
+  .ch .txt{background:var(--wp);padding:72px var(--pad) 30svh;-webkit-mask:linear-gradient(#0000,#000 64px,#000 calc(100% - 26svh),#0000);mask:linear-gradient(#0000,#000 64px,#000 calc(100% - 26svh),#0000);flex:1}
+  .ch .txt{max-width:none}
+  .hero{min-height:100svh}
+  .hero h1{font-size:clamp(30px,8.4vw,36px)}
+  .hero .sub{font-size:15px}
+  .hint{display:none}
+  .minfo{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px;font-size:13px;color:var(--soft)}.minfo>*{white-space:nowrap}
+  .minfo b{color:var(--ink)}
+  .ch h2{font-size:clamp(30px,8.2vw,38px)}
+  .lede{font-size:15px;margin-top:14px}
+  .facts div{grid-template-columns:96px minmax(0,1fr);font-size:14px;gap:12px}
+  .week{gap:5px}.day{min-height:84px;padding:10px 6px;border-radius:12px}.day .dn{font-size:15px}.day .dt{font-size:10.5px}
+  .total{flex-direction:column;align-items:flex-start}
+  .amt{font-size:30px}
+  .steps li{font-size:14px;grid-template-columns:38px minmax(0,1fr)}
+  .pack .p{font-size:30px}
+  .story{height:200vh}
+  .story .stick{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:20px;padding:84px var(--pad) 90px;background:var(--wp)}
+  .yr-num{font-size:clamp(70px,21vw,96px)}
+  .yr-cap{font-size:20px;margin-top:44px;min-height:0}
+  .yr-sum{display:none}
+  .stack{width:58%;justify-self:start;max-width:none}
+  .acc summary{font-size:17px;padding:16px 0}
+  .acc .body{font-size:14px}
+  .row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"dn hrs" "tr tr";row-gap:6px;font-size:13px}
+  .row .dn{grid-area:dn}.row .hrs{grid-area:hrs;font-size:12px}.row .track{grid-area:tr}
+  .scale{grid-template-columns:minmax(0,1fr)}.scale>span{display:none}
+  .chart{gap:18px}
+  .where{grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:14px}
+  footer{padding-top:80px;min-height:90svh}
+  footer h2{font-size:26px}
+  footer .cols{gap:28px;font-size:13px}
+  .info{gap:8px;padding:10px var(--pad) 12px}
+  .info .fx{display:none}
+  .info .pill{flex:1 1 auto;justify-content:center}
+  .info .pill svg{display:none}
+  .act{display:inline-flex;align-items:center;justify-content:center;flex:0 0 46px;height:46px;border-radius:50%;background:#fff;border:1px solid #DAD9D5;color:#000;pointer-events:auto}
+  .act svg{width:19px;height:19px}
+}
+@media (max-width:860px), (orientation:portrait) and (max-width:1100px){.top.solid{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--hbg,var(--bg))}}
+@media (max-width:360px){.where{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ===== v15: light, happy, custom sections ===== */
+.lede{color:var(--soft)}
+.picker{margin-top:28px}
+.when{background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.04),0 6px 24px -12px rgba(170,1,0,.25)}
+.seg{color:var(--soft)}.seg[aria-pressed=true]{color:#fff}
+.seg-ink{background:var(--red)}
+.day{background:#fff;border:1px solid #EADBD6;color:var(--ink);box-shadow:0 8px 22px -16px rgba(120,0,0,.35);transition:transform .25s cubic-bezier(.3,.8,.2,1),background .2s,border-color .2s}
+.day:hover:not(:disabled){transform:translateY(-3px)}
+.day .dt{color:var(--soft)}
+.day[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff;transform:translateY(-3px)}
+.day[aria-pressed=true] .dt{color:rgba(255,255,255,.9)}
+.day:disabled{opacity:.35}
+.say{margin-top:18px;font-size:clamp(18px,1.5vw,22px);line-height:1.35;letter-spacing:-.01em;min-height:1.4em}
+.say b{color:var(--red);font-weight:600}
+.total{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.amt{font-size:clamp(40px,3.6vw,56px);font-weight:500;letter-spacing:-.045em;line-height:1}
+.pay{margin-top:12px;font-size:14px;color:var(--soft)}
+/* coaching chat */
+.lang{margin-top:26px;display:inline-flex;gap:6px;flex-wrap:wrap}
+.lang button,.goals button{appearance:none;font:inherit;font-size:14px;font-weight:500;padding:9px 15px;border-radius:999px;border:1px solid #E7D4CF;background:#fff;color:var(--ink);cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.lang button[aria-pressed=true],.goals button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.chat{margin-top:16px;display:flex;flex-direction:column;gap:8px;max-width:440px;padding:18px;border-radius:26px;background:rgba(255,255,255,.72);box-shadow:0 30px 60px -36px rgba(120,0,0,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.msg{max-width:84%;padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.4;opacity:var(--m,1);transform:translateY(calc((1 - var(--m,1)) * 14px))}
+.msg.you{align-self:flex-end;background:var(--red);color:#fff;border-bottom-right-radius:6px}
+.msg.w{align-self:flex-start;background:#fff;border:1px solid #F0E3DF;border-bottom-left-radius:6px}
+.msg.w .who{display:block;font-size:12px;font-weight:600;color:var(--red);margin-bottom:2px}
+.chat-note{margin-top:8px;font-size:13px;color:var(--soft)}
+.price-line{margin-top:18px;display:flex;align-items:baseline;gap:22px;flex-wrap:wrap;font-size:15px;color:var(--soft)}
+.price-line b{font-size:30px;font-weight:500;letter-spacing:-.04em;color:var(--ink);margin-right:4px}
+.price-line small{font-size:13px}
+#coaching .pill{margin-top:18px}
+/* nutrition: the headline changes with your goal */
+.goal-h{text-wrap:balance}
+.goal{display:inline-grid;vertical-align:bottom;overflow:hidden;color:var(--red);padding-bottom:.08em}
+.goal span{grid-area:1/1;transition:transform .55s cubic-bezier(.3,.8,.2,1),opacity .4s}
+.goal span.out{transform:translateY(-105%);opacity:0}
+.goal span.in{transform:translateY(105%);opacity:0}
+.goals{margin-top:24px;display:flex;gap:6px;flex-wrap:wrap}
+#nutrition .lede{margin-top:22px}
+#nutrition .pill{margin-top:22px}
+@media (max-width:860px), (orientation:portrait) and (max-width:1100px){.chat{padding:14px;border-radius:22px}.msg{font-size:14px}.amt{font-size:40px}}
+@media (prefers-reduced-motion:reduce){.goal span,.day{transition:none}}
+.info .wa{transition:opacity .3s,transform .3s}.info.quiet .wa{opacity:0;transform:translateY(8px);pointer-events:none}
+.row{font-size:15px}.row .dn{color:#3F3E3B}.row .hrs{color:var(--ink)}.scale{font-size:13px;color:#55544F}.legend{color:#3F3E3B}
+footer .word{padding-bottom:.06em}
+
+/* nutrition: how your plan works (a real sequence, so the line + order are information) */
+.plan{list-style:none;margin:26px 0 0;padding:0;position:relative;max-width:520px}
+.plan::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:#E7D9C9;border-radius:2px}
+.plan::after{content:"";position:absolute;left:5px;top:8px;width:2px;height:calc((100% - 16px) * var(--pf,1));background:var(--red);border-radius:2px}
+.plan li{position:relative;padding:0 0 18px 30px}
+.plan li::before{content:"";position:absolute;left:0;top:5px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--red);box-sizing:border-box}
+.plan .pw{display:block;font-size:13px;font-weight:600;color:var(--red);margin-bottom:2px}
+.plan b{display:block;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.plan p{margin:2px 0 0;font-size:15px;line-height:1.45;color:var(--soft)}
+.plan-note{margin-top:4px;font-size:14px;line-height:1.5;color:#55544F;max-width:46ch;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.7)}
+@media (max-width:860px), (orientation:portrait) and (max-width:1100px){.plan b{font-size:16px}.plan p{font-size:14px}}
+
+/* ≤860: objects orbit the text block on both sides, top to bottom, and move with scroll */
+.orbit{display:none}
+@media (max-width:860px), (orientation:portrait) and (max-width:1100px){
+  .ch .txt{--M:max(var(--pad),11vw,calc((100% - 480px) / 2));padding-left:var(--M);padding-right:var(--M)}
+  .ch .txt>*:not(.orbit){position:relative;z-index:1}
+  .ch{overflow-x:clip}                       /* objects peek past the edge without widening the page */
+  .orbit{display:block;position:absolute;inset:0;z-index:0;pointer-events:none;overflow:visible}
+  .orbit img{position:absolute;width:var(--w);height:auto;left:var(--l,auto);right:var(--rt,auto);top:var(--t);
+    transform:translate3d(calc(var(--spa,0) * var(--x) * 1px),calc(var(--sp,0) * var(--d) * -110px),0) rotate(calc(var(--r) + var(--sp,0) * var(--s)));
+    filter:drop-shadow(0 16px 16px rgba(70,10,6,.22));will-change:transform}
+}
+@media (max-width:860px) and (prefers-reduced-motion:reduce), (orientation:portrait) and (max-width:1100px) and (prefers-reduced-motion:reduce){.orbit img{transform:rotate(var(--r))}}
+
+/* tablets (stacked layout, 600px and wider): bigger type, wider column, bigger objects */
+@media (min-width:600px) and (max-width:860px), (min-width:600px) and (orientation:portrait) and (max-width:1100px){
+  .hero h1{font-size:clamp(48px,7.4vw,84px)}
+  .hero .txt{display:flex;flex-direction:column;justify-content:center;padding-bottom:22svh}
+  .ch h2{font-size:clamp(40px,5.8vw,60px)}
+  .hero .sub,.lede{font-size:18px;max-width:52ch}
+  .minfo{font-size:15px}
+  .ch .txt{--M:max(var(--pad),9vw,calc((100% - 620px) / 2))}
+  .facts div,.steps li{font-size:17px}
+  .day{min-height:96px}.day .dn{font-size:18px}.day .dt{font-size:13px}
+  .msg{font-size:16px}.chat{max-width:520px}
+  .plan b{font-size:19px}.plan p{font-size:16px}.plan .pw{font-size:14px}.plan-note{font-size:15px}
+  .acc summary{font-size:19px}.acc .body{font-size:16px}
+  .row{font-size:15px}
+  footer h2{font-size:clamp(40px,5.6vw,58px)}footer .cols{font-size:16px}
+}
+
+/* story: one real moment per milestone */
+.ms{position:relative;margin-top:44px;min-height:15em;max-width:30em}
+.ms .m{position:absolute;inset:0 0 auto 0;opacity:0;transform:translateY(16px);transition:opacity .45s,transform .55s cubic-bezier(.3,.8,.2,1);pointer-events:none}
+.ms .m.on{opacity:1;transform:none;pointer-events:auto}
+.ms h3{font-size:clamp(24px,2.4vw,36px);font-weight:500;letter-spacing:-.03em;line-height:1.1}
+.ms p{margin-top:10px;font-size:16px;line-height:1.5;color:var(--soft);max-width:40ch}
+.tags{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.tags li{font-size:13px;font-weight:500;padding:6px 11px;border-radius:999px;background:#fff;border:1px solid #EFD9D4;color:var(--ink)}
+.wq{margin:8px 0 0;max-width:32em;padding-left:16px;border-left:2px solid var(--red)}
+.wq p{font-size:16px;line-height:1.45;letter-spacing:-.01em}
+.wq cite{display:block;margin-top:4px;font-size:12px;font-style:normal;color:var(--soft)}
+@media (prefers-reduced-motion:reduce){.ms .m{transition:none}}
+@media (max-width:860px), (orientation:portrait) and (max-width:1100px){.ms{margin-top:30px;min-height:13.5em}.ms h3{font-size:22px}.ms p{font-size:15px}.wq p{font-size:15px}}
+
+/* story: the milestone's own objects float beside the year */
+.yr-wrap{position:relative}
+.mobj{position:absolute;left:calc(100% + 3%);top:-6%;width:min(34vw,300px);height:120%;pointer-events:none}
+.yr-wrap{width:max-content;max-width:100%}
+.mo{position:absolute;inset:0;opacity:0;transform:translateY(24px) scale(.94);transition:opacity .5s,transform .6s cubic-bezier(.3,.8,.2,1)}
+.mo.on{opacity:1;transform:none}
+.mo img{position:absolute;filter:drop-shadow(0 16px 16px rgba(70,10,6,.2))}
+.mo img:first-child{width:56%;left:0;top:4%;transform:rotate(-10deg)}
+.mo img:last-child{width:40%;left:52%;top:46%;transform:rotate(12deg)}
+@media (max-width:860px), (orientation:portrait) and (max-width:1100px){.mobj{width:min(40vw,240px);left:calc(100% + 2%);top:-14%}}
+@media (max-width:480px){.mobj{width:34vw;left:auto;right:-38vw;top:-18%}}
+@media (prefers-reduced-motion:reduce){.mo{transition:none}}
+
+/* desktop (not stacked): Hours = plain wall, so the chart takes the full width and the facts sit beside it */
+@media (min-width:861px) and (orientation:landscape), (min-width:1101px){
+  #visit{grid-template-columns:minmax(0,1fr)}
+  #visit .txt{max-width:1180px;width:100%;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);column-gap:clamp(48px,6vw,110px);align-items:end}
+  #visit h2,#visit .chart,#visit .legend{grid-column:1}
+  #visit .chart{max-width:none;gap:16px}
+  #visit .row{grid-template-columns:52px minmax(0,1fr) 150px;font-size:16px}
+  #visit .track{height:18px}
+  #visit .scale{grid-template-columns:52px minmax(0,1fr) 150px;grid-column:1}
+  #visit .where{grid-column:2;grid-row:1 / span 3;align-self:center;grid-template-columns:minmax(0,1fr);gap:26px;margin-top:0}
+  #visit .rate{font-size:64px}
+}
+/* stacked (phone/iPad): story is NOT pinned (phone = no pins). Each milestone shows its own year + photo. */
+.my,.mf{display:none}
+@media (max-width:860px), (orientation:portrait) and (max-width:1100px){
+  .story{height:auto}
+  .story .stick{position:relative;height:auto;display:block;align-self:stretch;width:100%;padding:88px var(--pad) 26svh;
+    -webkit-mask:linear-gradient(#0000,#000 64px,#000 calc(100% - 20svh),#0000);mask:linear-gradient(#0000,#000 64px,#000 calc(100% - 20svh),#0000)}
+  .story .yr-wrap,.story .yr-line,.story .stack{display:none}
+  .story .stick>div:first-child{max-width:560px;margin:0 auto}
+  .ms{margin-top:0;min-height:0;display:grid;gap:52px}
+  .ms .m{position:relative;inset:auto;opacity:1;transform:none;pointer-events:auto;transition:none}
+  .my{display:block;font-weight:600;font-size:clamp(56px,15vw,84px);letter-spacing:-.06em;line-height:.9;color:var(--red);margin-bottom:12px;font-variant-numeric:tabular-nums}
+  .mf{display:block;margin:18px 0 0;aspect-ratio:4/3;border-radius:6px;overflow:hidden;box-shadow:0 24px 48px -28px rgba(40,0,0,.45)}
+  .mf img{width:100%;height:100%;object-fit:cover}
+  .story .wq{margin-top:52px}
+}
+/* header: no partial progress line (read as a glitch); a hairline once solid */
+.prog{display:none}
+.top.solid{box-shadow:0 1px 0 rgba(0,0,0,.08)}
+
+/* language switch (header) */
+.top{gap:20px}.nav{margin-left:auto}
+.lsw{display:inline-flex;padding:3px;border-radius:999px;background:rgba(0,0,0,.06);gap:2px}
+.lsw button{appearance:none;border:0;background:transparent;color:inherit;font:inherit;font-size:12.5px;font-weight:600;letter-spacing:.02em;padding:6px 10px;border-radius:999px;cursor:pointer;opacity:.62;transition:background .2s,color .2s,opacity .2s}
+.lsw button[aria-pressed=true]{background:var(--ink);color:#fff;opacity:1}
+.lsw button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.top.ondk .lsw{background:rgba(255,255,255,.16)}.top.ondk .lsw button[aria-pressed=true]{background:#fff;color:var(--red)}
+@media (max-width:860px), (orientation:portrait) and (max-width:1100px){.lsw{margin-left:auto}.lsw button{padding:7px 10px}}
+</style>
+</head>
+<body>
+<canvas id="stage" aria-hidden="true"></canvas>
+
+<header class="top" id="top">
+  <a class="brand" href="#hero"><i><img src="assets/logo-white.png" alt=""></i>SuperAtivo Fitness</a>
+  <nav class="nav" aria-label="Main"><a href="#classes">Classes</a><a href="#coaching">Coaching</a><a href="#nutrition">Nutrition</a><a href="#visit">Hours</a></nav>
+  <div class="lsw" role="group" aria-label="Language"><button type="button" data-lang="en" lang="en" aria-label="English">EN</button><button type="button" data-lang="pt" lang="pt" aria-label="Português">PT</button><button type="button" data-lang="es" lang="es" aria-label="Español">ES</button></div>
+  <i class="prog" id="prog"></i>
+</header>
+
+<main>
+<section class="ch hero" id="hero" data-w>
+  <div class="txt" data-fade>
+    <h1>Stage-tested coaching on Ashton Rd.</h1>
+    <p class="sub">Witor, Jhennyffer and Larissa have all competed on stage. Train with them in semi-private classes, or get online coaching and a meal plan. Since 2015.</p>
+    <p class="minfo"><span><b>★ 4.7</b> 14 Google reviews</span><span id="mToday">Open today</span></p>
+  </div>
+  <div class="slot"></div>
+  <div class="hint" aria-hidden="true"><i></i>Scroll to see what we do</div>
+</section>
+
+<section class="ch" id="classes" data-w>
+  <div class="txt" data-fade>
+    <h2>Small classes. A coach on every rep.</h2>
+    <p class="lede">Classes run 1 hour or more, mornings and evenings, for building muscle, losing weight or gaining lean mass. Pick the days that fit your week.</p>
+    <div class="picker">
+      <div class="when" role="group" aria-label="Class time">
+        <button type="button" class="seg" data-when="am" aria-pressed="false">Mornings</button>
+        <button type="button" class="seg" data-when="pm" aria-pressed="true">Evenings</button>
+        <i class="seg-ink" aria-hidden="true"></i>
+      </div>
+      <div class="week" id="week"></div>
+      <p class="say" id="note" aria-live="polite"></p>
+      <div class="total">
+        <div class="amt" id="amt">$100<small>a week</small></div>
+        <a class="pill" id="book" href="#" target="_blank" rel="noopener">Message us these days</a>
+      </div>
+      <p class="pay">Fixed weekly price. Cash or card at the front desk.</p>
+    </div>
+  </div>
+  <div class="slot"></div>
+</section>
+
+<section class="ch" id="coaching" data-w>
+  <div class="txt" data-fade>
+    <h2>Online coaching, right on WhatsApp.</h2>
+    <p class="lede">Train anywhere. Your plan comes straight from your coach, in Portuguese, English or Spanish.</p>
+    <div class="lang" role="group" aria-label="Chat language">
+      <button type="button" data-l="en" aria-pressed="true">English</button><button type="button" data-l="pt" aria-pressed="false">Português</button><button type="button" data-l="es" aria-pressed="false">Español</button>
+    </div>
+    <div class="chat" id="chat" aria-label="Example coaching chat"></div>
+    <p class="chat-note">Example chat. The timings are real.</p>
+    <div class="price-line"><span><b>$150</b> 1 month</span><span><b>$360</b> 3 months</span><small>Cash, card or Venmo</small></div>
+    <a class="pill" id="coachBtn" href="https://wa.me/12673389078?text=Hi!%20I%27d%20like%20online%20coaching." target="_blank" rel="noopener">Message us about coaching</a>
+  </div>
+  <div class="slot"></div>
+</section>
+
+<section class="ch" id="nutrition" data-w>
+  <div class="txt" data-fade>
+    <h2 class="goal-h">A meal plan to <span class="goal" id="goal"><span>build muscle</span></span>.</h2>
+    <div class="goals" role="group" aria-label="Your goal">
+      <button type="button" data-g="lose weight" aria-pressed="false">Lose weight</button><button type="button" data-g="build muscle" aria-pressed="true">Build muscle</button><button type="button" data-g="get stage-ready" aria-pressed="false">Get stage-ready</button>
+    </div>
+    <p class="lede">Your coach writes it for you only, together with your training plan, and sends it on WhatsApp.</p>
+    <ol class="plan" id="plan">
+      <li><span class="pw">Today</span><b>Message us</b><p>Tell us your goal on WhatsApp.</p></li>
+      <li><span class="pw">5 to 7 business days</span><b>Get your plan</b><p>Your meals and your training, made only for you.</p></li>
+      <li><span class="pw">Within 24 to 36 business hours</span><b>Ask anything about it</b><p>Write to your coach on WhatsApp, Mon to Fri, 8 AM to 5 PM.</p></li>
+      <li><span class="pw">About every 15 business days</span><b>Your plan keeps up with you</b><p>Your coach adjusts it from your check-ins and progress. Each update arrives in 3 to 5 business days.</p></li>
+    </ol>
+    <div class="price-line meal-price"><span><b>$360</b> 3 months</span><span><b>$660</b> 6 months</span></div>
+    <p class="plan-note">Follow at least 80% of your plan for 2 weeks to get your update. Be honest in your check-ins. No judgment here.</p>
+    <a class="pill" id="mealBtn" href="#" target="_blank" rel="noopener">Ask for a meal plan</a>
+  </div>
+  <div class="slot"></div>
+</section>
+
+<section class="ch story" id="witor" data-w>
+  <div class="stick" data-fade>
+    <div>
+      <div class="yr-wrap"><div class="yr-num" aria-hidden="true"><span id="yrNum">2014</span></div><div class="mobj" id="mobj" aria-hidden="true"><div class="mo on"><img src="assets/obj/vdumbbells.webp" alt=""><img src="assets/obj/sneakers.webp" alt=""></div><div class="mo"><img src="assets/obj/box.webp" alt=""><img src="assets/obj/key.webp" alt=""></div><div class="mo"><img src="assets/obj/whistle.webp" alt=""><img src="assets/obj/mat.webp" alt=""></div></div></div>
+      <div class="yr-line" aria-hidden="true"><i id="yrFill"></i><div class="marks"><span>2014</span><span>2015</span><span id="yrNow">Today</span></div></div>
+      <div class="ms" id="ms">
+        <div class="m on"><span class="my" aria-hidden="true">2014</span><h3>House to house</h3><p>Witor starts coaching people at home, going house to house with his training plans.</p><ul class="tags"><li>Home training</li><li>House to house</li></ul></ul><figure class="mf"><img src="assets/y2014.webp" alt="Witor training a client at home in 2014" loading="lazy"></figure></div>
+        <div class="m"><span class="my" aria-hidden="true">2015</span><h3>9350 Ashton Rd opens</h3><p>Witor opens his own gym at 9350 Ashton Rd in Northeast Philly, with room for small group classes.</p><ul class="tags"><li>Semi-private classes</li><li>Northeast Philly</li></ul></ul><figure class="mf"><img src="assets/y2015.webp" alt="The first SuperAtivo gym in 2015" loading="lazy"></figure></div>
+        <div class="m"><span class="my" aria-hidden="true">Today</span><h3>Three coaches. Same gym.</h3><p>Witor, Jhennyffer and Larissa, all three stage competitors, coach at SuperAtivo: classes, online coaching and meal plans, in English, Portuguese or Spanish.</p><ul class="tags"><li>Classes</li><li>Online coaching</li><li>Meal plans</li><li>Stage prep</li><li>★ 4.7 on Google</li></ul></ul><figure class="mf"><img src="assets/y2026.webp" alt="The SuperAtivo gym floor today" loading="lazy"></figure></div>
+      </div>
+      <blockquote class="wq"><p>“Here you don't just find a gym, but a place that inspires and transforms.”</p><cite>From the SuperAtivo welcome guide</cite></blockquote>
+    </div>
+    <div class="stack" id="stack">
+      <figure><img src="assets/y2014.webp" alt="Witor training a client at home in 2014" loading="lazy"></figure>
+      <figure><img src="assets/y2015.webp" alt="The first SuperAtivo gym in 2015" loading="lazy"></figure>
+      <figure><img src="assets/y2026.webp" alt="The SuperAtivo gym floor today" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+
+<section class="ch" id="rules" data-w>
+  <div class="txt" data-fade>
+        <h2>Before your first class.</h2>
+    <div class="acc">
+      <details open><summary>Your first visit<i></i></summary><div class="body">
+        <p>Come 10 to 15 minutes early to warm up on the treadmill or bike, fill your bottle and use the restroom.</p>
+        <p>Phones stay away during class. Handle messages and calls before or after.</p>
+        <p>This hour is yours. Take your time.</p></div></details>
+      <details><summary>Your training days<i></i></summary><div class="body">
+        <p>Your class days are fixed each week.</p>
+        <p>A missed class is still charged, even with notice.</p>
+        <p>Emergencies, illness or travel are the only exceptions.</p></div></details>
+      <details><summary>Online coaching rules<i></i></summary><div class="body">
+        <p>Questions go to your coach in writing on WhatsApp, about your plan. Voice notes only if you ask first.</p>
+        <p>Your package starts the day your first plan is sent. Payments are not refunded.</p>
+        <p>Plans are updated when you follow at least 80% of the routine for 2 weeks.</p>
+        <p>Your plan is made for you only, so please keep it private.</p>
+        <p>Late updates or payments get two reminders, then your spot goes to the next person.</p></div></details>
+    </div>
+  </div>
+  <div class="slot"></div>
+</section>
+
+<section class="ch" id="visit" data-w>
+  <div class="txt" data-fade>
+        <h2>When we're open</h2>
+    <div class="chart" id="chart" aria-label="Weekly gym hours and class times"></div>
+    <div class="legend"><span><i class="lo"></i>Gym open</span><span><i class="hi"></i>Group classes</span></div>
+    <div class="where">
+      <div><div class="rate">4.7<b class="stars" aria-hidden="true"><i id="starFill">★★★★★</i>★★★★★</b></div><div class="kk" style="margin-top:8px">14 Google reviews</div></div>
+      <div><div class="kk">Address</div><a href="https://maps.google.com/?q=9350+Ashton+Rd+%23121+Philadelphia+PA+19114" target="_blank" rel="noopener">9350 Ashton Rd #121<br>Philadelphia, PA 19114</a></div>
+      <div><div class="kk">Phone</div><a href="tel:+12673389078">(267) 338-9078</a></div>
+      <div><div class="kk">Instagram</div><a href="https://instagram.com/superativofitness" target="_blank" rel="noopener">@superativofitness</a></div>
+    </div>
+  </div>
+  <div class="slot"></div>
+</section>
+</main>
+
+<footer id="foot" data-w>
+  <div class="fslot slot"></div>
+  <div data-fade>
+    <div class="row2">
+      <div><h2>Come train with us on Ashton Rd.</h2><a class="pill" style="margin-top:24px" href="https://wa.me/12673389078" target="_blank" rel="noopener">Message us</a></div>
+      <div class="cols"><div><b>Visit</b>9350 Ashton Rd #121<br>Philadelphia, PA 19114</div><div><b>Talk</b>(267) 338-9078<br>@superativofitness</div></div>
+    </div>
+    <span class="word" id="word" aria-label="SuperAtivo">SuperAtivo</span>
+  </div>
+</footer>
+
+<div class="info" id="info">
+  <div class="fx"><span>★ 4.7 <em>14 Google reviews</em></span><span>9350 Ashton Rd #121</span><span id="today">Open today</span></div>
+  <a class="pill wa" href="https://wa.me/12673389078" target="_blank" rel="noopener">Message us <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  <a class="act" href="tel:+12673389078" aria-label="Call (267) 338-9078"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></a>
+  <a class="act" href="https://maps.google.com/?q=9350+Ashton+Rd+%23121+Philadelphia+PA+19114" target="_blank" rel="noopener" aria-label="Directions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></a>
+</div>
+
+<script src="assets/gsap.min.js"></script>
+<script src="assets/ScrollTrigger.min.js"></script>
+<script src="assets/lenis.min.js"></script>
+<script type="module" src="stage.js"></script>
+<script src="i18n.js"></script>
+<script>
+(()=>{
+const t=I18N.t;
+const D2R=Math.PI/180,lerp=(a,b,t)=>a+(b-a)*t,cl=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const rm=matchMedia('(prefers-reduced-motion: reduce)').matches,mq=matchMedia('(max-width:860px), (orientation:portrait) and (max-width:1100px)');
+/* ---------- real data ---------- */
+const HOURS={0:null,1:[[7,11],[17,22]],2:[[7,11],[17,22]],3:[[7,11],[17,22]],4:[[7,11],[17,22]],5:[[7,11],[17,22]],6:[[7,11]]};
+const CLS={1:[[7,9],[17,21]],2:[[7,9],[17,21]],3:[[17,21]],4:[[7,9],[17,21]],5:[[7,9],[17,20]],6:[],0:[]};
+const PRICE={2:70,3:100,4:125,5:150};
+const fmt=h=>{if(I18N.l==='pt')return h+'h';const x=h%12||12;return x+' '+(h<12?'AM':'PM')};
+const rng=r=>r.map(([a,b])=>I18N.l==='pt'?`${a}h–${b}h`:`${fmt(a).replace(/ (AM|PM)$/,(a<12)===(b<12)?'':' $1')}–${fmt(b)}`).join(', ');
+const nyNow=()=>new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));
+function today(){const n=nyNow(),d=n.getDay(),h=n.getHours()+n.getMinutes()/60,r=HOURS[d],el=document.getElementById('today'),m=document.getElementById('mToday');
+  if(!r){el.innerHTML=`${t('Closed today')} <em>${t('Opens Mon')} ${fmt(7)}</em>`;m.textContent=t('Closed today');return}
+  const o=r.find(([a,b])=>h>=a&&h<b);el.innerHTML=o?`${t('Open now')} <em>${t('until')} ${fmt(o[1])}</em>`:`${t('Today')} <em>${rng(r)}</em>`;m.textContent=o?`${t('Open now')} ${t('until')} ${fmt(o[1])}`:`${t('Today')} ${rng(r)}`}
+today();I18N.on(today);
+(function chart(){const el=document.getElementById('chart'),N=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],n=nyNow(),d=n.getDay(),hr=n.getHours()+n.getMinutes()/60,S=5,E=23,pc=h=>((h-S)/(E-S)*100)+'%',wd=(a,b)=>((b-a)/(E-S)*100)+'%';
+  [1,2,3,4,5,6,0].forEach(i=>{const r=document.createElement('div');r.className='row'+(i===d?' today':'');
+    let g=(HOURS[i]||[]).map(([a,b])=>`<i class="so" style="left:${pc(a)};width:${wd(a,b)}"></i>`).join('')+(CLS[i]||[]).map(([a,b])=>`<i class="sc" style="left:${pc(a)};width:${wd(a,b)}"></i>`).join('');
+    if(i===d&&hr>=S&&hr<=E)g+=`<span class="now" style="left:${pc(hr)}"><b></b></span>`;
+    r.innerHTML=`<span class="dn"></span><span class="track">${g}</span><span class="hrs"></span>`;r.dataset.i=i;el.append(r)});
+  const s=document.createElement('div');s.className='scale';s.innerHTML='<span></span><div><span></span><span></span><span></span><span></span></div><span></span>';el.append(s);
+  function lab(){el.querySelectorAll('.row').forEach(r=>{const i=+r.dataset.i;r.querySelector('.dn').textContent=t(N[i]);r.querySelector('.hrs').textContent=HOURS[i]?rng(HOURS[i]):t('Closed');const b=r.querySelector('.now b');if(b)b.textContent=t('Now')});
+    s.querySelectorAll('div span').forEach((x,k)=>x.textContent=fmt([5,11,17,23][k]))}
+  lab();I18N.on(lab)})();
+/* ---------- day picker ---------- */
+(function picker(){const wk=document.getElementById('week'),amt=document.getElementById('amt'),note=document.getElementById('note'),book=document.getElementById('book'),when=document.querySelector('.when');
+  const AMh={Mon:[7,9],Tue:[7,9],Thu:[7,9],Fri:[7,9]},PMh={Mon:[17,21],Tue:[17,21],Wed:[17,21],Thu:[17,21],Fri:[17,20]},DAYS=['Mon','Tue','Wed','Thu','Fri'];
+  const tt=o=>Object.fromEntries(Object.entries(o).map(([k,v])=>[k,rng([v])]));
+  let mode='pm';const sel=new Set([0,2,4]),shown={v:100};
+  const btns=DAYS.map((x,i)=>{const b=document.createElement('button');b.type='button';b.className='day';b.addEventListener('click',()=>{sel.has(i)?sel.delete(i):sel.add(i);upd()});wk.append(b);return b});
+  when.querySelectorAll('.seg').forEach(x=>x.addEventListener('click',()=>{mode=x.dataset.when;upd()}));
+  function upd(){const T=tt(mode==='am'?AMh:PMh);when.className='when '+mode;when.querySelectorAll('.seg').forEach(x=>x.setAttribute('aria-pressed',x.dataset.when===mode));
+    btns.forEach((b,i)=>{const t=T[DAYS[i]];if(!t)sel.delete(i);b.disabled=!t;b.setAttribute('aria-pressed',sel.has(i));b.innerHTML=`<span class="dn">${I18N.t(DAYS[i])}</span><span class="dt">${t||I18N.t('No class')}</span>`});
+    const n=sel.size,names=[...sel].sort().map(i=>I18N.t(DAYS[i])),lab=I18N.t(mode==='am'?'mornings':'evenings'),wk=I18N.t('a week');
+    if(n<2){gsap.killTweensOf(shown);amt.innerHTML=`—<small>${wk}</small>`;note.textContent=I18N.t('Pick at least 2 days.');book.setAttribute('aria-disabled','true');book.removeAttribute('href');return}
+    gsap.to(shown,{v:PRICE[n],duration:.6,ease:'power3.out',onUpdate:()=>{amt.innerHTML=`$${Math.round(shown.v)}<small>${wk}</small>`}});
+    note.innerHTML=`<b>${n} ${lab}</b> ${wk}: ${names.length>1?names.slice(0,-1).join(', ')+' '+I18N.t('and')+' '+names.at(-1):names[0]}.`;book.removeAttribute('aria-disabled');
+    const WA={en:`Hi! I'd like to join semi-private classes ${n} ${lab} a week (${names.join(', ')}), $${PRICE[n]}/week.`,pt:`Oi! Quero entrar nas aulas semi-privadas, ${n} ${lab} por semana (${names.join(', ')}), $${PRICE[n]}/semana.`,es:`¡Hola! Quiero unirme a las clases semiprivadas, ${n} ${lab} a la semana (${names.join(', ')}), $${PRICE[n]}/semana.`};
+    book.href='https://wa.me/12673389078?text='+encodeURIComponent(WA[I18N.l])}
+  upd();I18N.on(upd)})();
+
+/* ---------- scroll engine ---------- */
+gsap.registerPlugin(ScrollTrigger);
+/* ---------- coaching chat (example; real timings) ---------- */
+(function chat(){const el=document.getElementById('chat'),btn=document.getElementById('coachBtn');
+  const T={en:[['you',"Hi! I want to build muscle."],['w',"Great. Your first plan is ready in 5 to 7 business days."],['you',"Quick question about my leg day."],['w',"I answer within 24 to 36 business hours, Mon to Fri, 8 AM to 5 PM."],['w',"About every 15 business days, we update your plan as your body changes."]],
+    pt:[['you',"Oi! Quero ganhar massa muscular."],['w',"Ótimo. Seu primeiro plano fica pronto em 5 a 7 dias úteis."],['you',"Tenho uma dúvida sobre o meu treino de perna."],['w',"Respondo em 24 a 36 horas úteis, de segunda a sexta, das 8h às 17h."],['w',"Mais ou menos a cada 15 dias úteis, a gente atualiza seu plano conforme seu corpo muda."]],
+    es:[['you',"¡Hola! Quiero ganar músculo."],['w',"Genial. Tu primer plan estará listo en 5 a 7 días hábiles."],['you',"Tengo una pregunta sobre mi día de pierna."],['w',"Respondo en 24 a 36 horas hábiles, de lunes a viernes, de 8 AM a 5 PM."],['w',"Más o menos cada 15 días hábiles, actualizamos tu plan según cambia tu cuerpo."]]};
+  const HI={en:"Hi! I'd like online coaching.",pt:"Oi! Quero fazer a consultoria online.",es:"¡Hola! Quiero el coaching en línea."};
+  let msgs=[];
+  function set(l){el.innerHTML=T[l].map(([w,t])=>`<p class="msg ${w}">${w==='w'?'<span class="who">'+I18N.t('Coach')+'</span>':''}${t}</p>`).join('');msgs=[...el.children];
+    document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===l));el.lang=l;
+    btn.href='https://wa.me/12673389078?text='+encodeURIComponent(HI[l]);paint(lastP)}
+  let lastP=rm?1:0;
+  function paint(p){lastP=p;msgs.forEach((m,i)=>m.style.setProperty('--m',rm?1:cl((p*1.25-i*.17)/.14)))}
+  document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>I18N.set(b.dataset.l)));
+  set(I18N.l);I18N.on(set);
+  if(!rm)ScrollTrigger.create({trigger:'#coaching',start:'top 75%',end:'center 40%',onUpdate:s=>paint(s.progress)});})();
+
+/* nutrition timeline fills as you scroll (scrub only) */
+if(!rm){const pl=document.getElementById('plan');pl.style.setProperty('--pf',0);ScrollTrigger.create({trigger:pl,start:'top 80%',end:'bottom 55%',onUpdate:s=>pl.style.setProperty('--pf',s.progress.toFixed(3))})}
+
+/* spreads drift a little as you scroll past (scrub only) */
+
+/* ---------- orbit: real objects around each chapter's text (≤860) ---------- */
+(function orbit(){const O={hero:['chalk','towel','plate'],classes:['bumper','rings','jumprope','medball','hexdb','kettlebell'],coaching:['phone2','clipboard','tape2','stopwatch2','scale','bottle2'],
+  nutrition:['mealprep','salmon','oats','shaker2','almonds','lemon','avocado','tomatoes'],rules:['bottle','towel','shoe','clock','bag'],visit:['clock','bottle','bag','towel']};
+  const rnd=(i,k)=>{const x=Math.sin(i*12.9898+k*78.233)*43758.5453;return x-Math.floor(x)};
+  Object.entries(O).forEach(([id,list],si)=>{const t=document.querySelector('#'+id+' .txt');if(!t)return;const o=document.createElement('div');o.className='orbit';o.setAttribute('aria-hidden','true');
+    const n=list.length,M='var(--M)';
+    list.forEach((f,i)=>{const L=i%2===0,w=`clamp(52px,${(13+rnd(i,si)*4).toFixed(1)}vw,148px)`,top=(id==='hero'?55:6)+i*((id==='hero'?30:82)/Math.max(1,n-1));
+      const im=document.createElement('img');im.src=`assets/obj/${f}.webp`;im.alt='';im.loading='lazy';
+      im.style.cssText=`--w:${w};--t:${top.toFixed(1)}%;${L?'--l':'--rt'}:calc(${M} - ${w} * 1.08);--r:${((rnd(i,si+3)-.5)*40).toFixed(0)}deg;--s:${((rnd(i,si+5)-.5)*70).toFixed(0)}deg;--d:${(.5+rnd(i,si+7)).toFixed(2)};--x:${((L?-1:1)*(10+rnd(i,si+9)*24)).toFixed(0)}`;
+      o.append(im)});
+    t.prepend(o);
+    if(!rm)ScrollTrigger.create({trigger:t,start:'top bottom',end:'bottom top',onUpdate:e=>{const v=e.progress*2-1;o.style.setProperty('--sp',v.toFixed(3));o.style.setProperty('--spa',Math.abs(v).toFixed(3))}})})})();
+/* ---------- nutrition goal ---------- */
+(function goal(){const g=document.getElementById('goal'),btn=document.getElementById('mealBtn');let cur='build muscle';
+  function link(){const w=I18N.t(cur),M={en:`Hi! I'd like a meal plan to ${w}.`,pt:`Oi! Quero um plano alimentar para ${w}.`,es:`¡Hola! Quiero un plan de alimentación para ${w}.`};btn.href='https://wa.me/12673389078?text='+encodeURIComponent(M[I18N.l])}
+  I18N.on(()=>{const n=document.createElement('span');n.textContent=I18N.t(cur);g.replaceChildren(n);link()});
+  document.querySelectorAll('.goals button').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.g;if(v===cur)return;cur=v;
+    document.querySelectorAll('.goals button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    const n=document.createElement('span');n.textContent=I18N.t(v);
+    /* every word still on screen leaves (fast taps used to leave old words stacked) */
+    [...g.children].forEach(o=>{o.className='out';clearTimeout(o._t);o._t=setTimeout(()=>o.remove(),560)});
+    if(rm){g.replaceChildren(n)}else{n.className='in';g.append(n);requestAnimationFrame(()=>requestAnimationFrame(()=>{n.className=''}))}
+    link()}));g.firstElementChild.textContent=I18N.t(cur);link()})();
+
+let lenis=null;
+if(!rm&&matchMedia('(pointer:fine)').matches){lenis=new Lenis({lerp:.13,anchors:true});lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(t=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0)}
+/* desktop: the camera leans toward the cursor; opening fly-in */
+const G=window.__G={tx:0,ty:0,intro:0};
+if(matchMedia('(pointer:fine)').matches&&!rm){addEventListener('pointermove',e=>{const nx=e.clientX/innerWidth*2-1,ny=e.clientY/innerHeight*2-1;gsap.to(G,{ty:nx,tx:-ny,duration:1.1,ease:'power3.out',overwrite:'auto'})})}
+if(!rm&&scrollY<20){G.intro=1;gsap.to(G,{intro:0,duration:1.6,delay:.2,ease:'power3.inOut'})}
+/* story: year rolls, photos stack, marker rides the line */
+const figs=[...document.querySelectorAll('#stack figure')],yrNum=document.getElementById('yrNum'),yrCap=document.getElementById('yrCap'),yrFill=document.getElementById('yrFill');
+document.getElementById('yrNow').textContent=nyNow().getFullYear();const NOW=nyNow().getFullYear();
+const ms=[...document.querySelectorAll('#ms .m')];
+function story(p){const a=cl((p-.30)/.08),b=cl((p-.62)/.08);   /* year rolls only between milestones, then holds */
+  const y=b>0?2015+(NOW-2015)*ease(b):2014+ease(a);yrNum.textContent=Math.round(y);
+  yrFill.style.width=(cl(p/.3)*0+ (a*.5+b*.5))*100+'%';
+  const k=p<.36?0:p<.68?1:2;if(ms[k]&&!ms[k].classList.contains('on')){ms.forEach((m,i)=>m.classList.toggle('on',i===k))}
+  const mos=document.querySelectorAll('#mobj .mo');mos.forEach((m,i)=>m.classList.toggle('on',i===k));
+  const H=innerHeight;[1,2].forEach(n=>{const s=n===1?a:b;figs[n].style.transform=`translateY(${(1-ease(s))*H}px) rotate(${(1-s)*(n===1?5:-4)}deg)`});
+  [0,1].forEach(n=>{const s=n===0?a+b*.6:b;figs[n].style.transform=`scale(${1-s*.1}) translateY(${-s*4}%)`;figs[n].style.filter=`brightness(${1-s*.3})`})}
+ScrollTrigger.create({trigger:'#witor',start:'top top',end:'bottom bottom',onUpdate:s=>story(s.progress)});story(0);
+/* lower bits */
+if(!rm){gsap.utils.toArray('.row').forEach((r,i)=>gsap.fromTo(r.querySelectorAll('.so,.sc'),{scaleX:0},{scaleX:1,ease:'none',scrollTrigger:{trigger:'#chart',start:`top ${88-i*3}%`,end:`top ${50-i*3}%`,scrub:true}}));
+  gsap.fromTo('#starFill',{width:'0%'},{width:'94%',duration:1.1,ease:'power2.out',scrollTrigger:{trigger:'.where',start:'top 85%'}})}
+/* footer word */
+const word=document.getElementById('word');
+function fitWord(){word.style.fontSize='100px';const pr=document.createElement('span');pr.textContent='SuperAtivo';pr.style.cssText='position:absolute;visibility:hidden;white-space:nowrap;font:600 100px Geist;letter-spacing:-.06em';document.body.append(pr);const k=word.parentElement.clientWidth/pr.getBoundingClientRect().width;pr.remove();word.style.fontSize=Math.min(100*k,innerHeight*.28)+'px'}
+document.fonts.ready.then(fitWord);addEventListener('resize',fitWord);
+word.innerHTML=[...'SuperAtivo'].map(c=>`<span class="ch2" aria-hidden="true">${c}</span>`).join('');
+if(!rm)gsap.fromTo('#word .ch2',{yPercent:110},{yPercent:0,stagger:.06,ease:'none',scrollTrigger:{trigger:'footer',start:'top 70%',end:'bottom bottom',scrub:true}});
+/* header progress, active nav, bottom bar */
+const hdrW=[...document.querySelectorAll('[data-w]')];let hdrLast='';
+function hdrTint(){const y=top.offsetHeight;for(const w of hdrW){const r=w.getBoundingClientRect();if(r.top<=y&&r.bottom>y){const c=getComputedStyle(w).getPropertyValue('--wp').trim();document.getElementById('top').classList.toggle('ondk',w.tagName==='FOOTER');if(c&&c!==hdrLast){hdrLast=c;document.getElementById('top').style.setProperty('--hbg',c)}return}}}
+const top=document.getElementById('top'),prog=document.getElementById('prog'),info=document.getElementById('info'),navA=[...document.querySelectorAll('.nav a')];
+ScrollTrigger.create({start:0,end:'max',onUpdate:s=>{prog.style.width=s.progress*100+'%';top.classList.toggle('solid',scrollY>40);hdrTint();
+  info.classList.toggle('past',scrollY>innerHeight*.22);const f=document.getElementById('foot').getBoundingClientRect();info.classList.toggle('hide',f.top<innerHeight*.5);
+  navA.forEach(a=>{const r=document.querySelector(a.getAttribute('href')).getBoundingClientRect();a.classList.toggle('on',r.top<innerHeight*.5&&r.bottom>innerHeight*.5)})}});
+addEventListener('resize',()=>ScrollTrigger.refresh());
+/* one CTA on screen: the bar's Message-us pill steps aside while a section's own button is visible */
+{const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?seen.add(e.target):seen.delete(e.target));info.classList.toggle('quiet',seen.size>0)},{rootMargin:'0px'});
+ ['book','coachBtn','mealBtn'].forEach(id=>io.observe(document.getElementById(id)))}
+I18N.init();
+window.__ready=true;
+})();
+</script>
+</body>
+</html>
