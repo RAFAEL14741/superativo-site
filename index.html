@@ -371,6 +371,20 @@ footer .word{padding-bottom:.06em}
 .lsw button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 .top.ondk .lsw{background:rgba(255,255,255,.16)}.top.ondk .lsw button[aria-pressed=true]{background:#fff;color:var(--red)}
 @media (max-width:860px), (orientation:portrait) and (max-width:1100px){.lsw{margin-left:auto}.lsw button{padding:7px 10px}}
+
+/* objects drift + turn with scroll on the compositor (CSS scroll timeline); older browsers: they simply scroll with the page */
+@media (max-width:860px), (orientation:portrait) and (max-width:1100px){
+  .orbit img{transform:rotate(var(--r))}
+  @supports (animation-timeline: view()){
+    .orbit img{animation:orb linear both;animation-timeline:view();animation-range:cover}
+  }
+}
+@keyframes orb{
+  from{transform:translate3d(calc(var(--x) * 1px),calc(var(--d) * 110px),0) rotate(calc(var(--r) - var(--s)))}
+  50%{transform:translate3d(0,0,0) rotate(var(--r))}
+  to{transform:translate3d(calc(var(--x) * 1px),calc(var(--d) * -110px),0) rotate(calc(var(--r) + var(--s)))}
+}
+@media (prefers-reduced-motion:reduce){.orbit img{animation:none!important}}
 </style>
 </head>
 <body>
@@ -605,11 +619,11 @@ if(!rm){const pl=document.getElementById('plan');pl.style.setProperty('--pf',0);
   Object.entries(O).forEach(([id,list],si)=>{const t=document.querySelector('#'+id+' .txt');if(!t)return;const o=document.createElement('div');o.className='orbit';o.setAttribute('aria-hidden','true');
     const n=list.length,M='var(--M)';
     list.forEach((f,i)=>{const L=i%2===0,w=`clamp(52px,${(13+rnd(i,si)*4).toFixed(1)}vw,148px)`,top=(id==='hero'?55:6)+i*((id==='hero'?30:82)/Math.max(1,n-1));
-      const im=document.createElement('img');im.src=`assets/obj/${f}-o.webp`;im.alt='';im.loading='lazy';
+      const im=document.createElement('img');im.dataset.src=`assets/obj/${f}-o.webp`;im.alt='';im.loading='lazy';
       im.style.cssText=`--w:${w};--t:${top.toFixed(1)}%;${L?'--l':'--rt'}:calc(${M} - ${w} * 1.08);--r:${((rnd(i,si+3)-.5)*40).toFixed(0)}deg;--s:${((rnd(i,si+5)-.5)*70).toFixed(0)}deg;--d:${(.5+rnd(i,si+7)).toFixed(2)};--x:${((L?-1:1)*(10+rnd(i,si+9)*24)).toFixed(0)}`;
       o.append(im)});
     t.prepend(o);
-    if(!rm)ScrollTrigger.create({trigger:t,start:'top bottom',end:'bottom top',onUpdate:e=>{const v=e.progress*2-1;o.style.setProperty('--sp',v.toFixed(3));o.style.setProperty('--spa',Math.abs(v).toFixed(3))}})})})();
+    if(false)ScrollTrigger.create({trigger:t,start:'top bottom',end:'bottom top',onUpdate:e=>{const v=e.progress*2-1;o.style.setProperty('--sp',v.toFixed(3));o.style.setProperty('--spa',Math.abs(v).toFixed(3))}})})})();
 /* ---------- nutrition goal ---------- */
 (function goal(){const g=document.getElementById('goal'),btn=document.getElementById('mealBtn');let cur='build muscle';
   function link(){const w=I18N.t(cur),M={en:`Hi! I'd like a meal plan to ${w}.`,pt:`Oi! Quero um plano alimentar para ${w}.`,es:`¡Hola! Quiero un plan de alimentación para ${w}.`};btn.href='https://wa.me/12673389078?text='+encodeURIComponent(M[I18N.l])}
@@ -664,6 +678,9 @@ addEventListener('sa-lang',()=>{fitWord();ScrollTrigger.refresh()});
 {const seen=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?seen.add(e.target):seen.delete(e.target));info.classList.toggle('quiet',seen.size>0)},{rootMargin:'0px'});
  ['book','coachBtn','mealBtn'].forEach(id=>io.observe(document.getElementById(id)))}
 I18N.init();
+/* load images ~2 screens before they show up */
+{const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const i=e.target;if(i.dataset.src){i.src=i.dataset.src;delete i.dataset.src}i.loading='eager';io.unobserve(i)}),{rootMargin:'200% 0px'});
+ document.querySelectorAll('.orbit img,.mf img,#stack img,.mo img').forEach(i=>io.observe(i))}
 window.__ready=true;
 })();
 </script>

@@ -115,12 +115,16 @@ defs.forEach((d, k) => d.props.forEach((p, q) => {
   /* soft baked shadow under each object (light walls need it or objects look pasted on) */
   const shm = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, opacity: .34 });
   const sh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), shm); sh.visible = false; m.userData.sh = sh; scene.add(sh);
-  loader.load(`assets/obj/${p[0]}-sh.webp`, t => { shm.map = t; shm.needsUpdate = true; });
-  loader.load(`assets/obj/${p[0]}.webp`, t => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; mat.map = t; mat.needsUpdate = true;
-    m.userData.asp = t.image.height / t.image.width; m.visible = true; texLoaded++; place(); });
+  const go = () => {
+    loader.load(`assets/obj/${p[0]}-sh.webp`, t => { renderer.initTexture(t); shm.map = t; shm.needsUpdate = true; });
+    loader.load(`assets/obj/${p[0]}.webp`, t => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; renderer.initTexture(t); mat.map = t; mat.needsUpdate = true;
+      m.userData.asp = t.image.height / t.image.width; m.visible = true; texLoaded++; place(); warm(); }); };
+  if (k < 2 || document.readyState === 'complete') go(); else addEventListener('load', go, { once: true });
   scene.add(m); objs.push(m);
 }));
 
+let warmT = 0;
+function warm() { clearTimeout(warmT); warmT = setTimeout(() => { try { renderer.compile(scene, cam); } catch (e) {} }, 400); }
 /* ---------- layout (depends on screen) ---------- */
 let W = 0, H = 0, phone = false, R = 2.5, D = 6, VX = 0, VY = 0, CX = 0, CY = 0, holeSide = 0;
 const touch = matchMedia('(pointer:coarse)').matches;
@@ -213,17 +217,18 @@ function frame() {
     if (n === k && k < N) o = 1 - cl((p - .08) / .3);
     if (n === k + 1) o = cl((p - .42) / .3);
     o = Math.round(o * 100) / 100;
-    if (el._o !== o) { el._o = o; el.style.setProperty('--o', o); } css(el, 'pointerEvents', o < .2 ? 'none' : '');  /* text fades, its panel stays solid */
+    if (el._o !== o) { el._o = o; for (const c of el.children) c.style.opacity = o === 1 ? '' : o; } css(el, 'pointerEvents', o < .2 ? 'none' : '');  /* text fades, its panel stays solid */
   });
   const dark = !defs[act].lt;
   if (document.body._dk !== dark) { document.body._dk = dark; document.body.classList.toggle('dk', dark); }
   const bg = bgCache[act] || (bgCache[act] = mixHex(defs[act].a, defs[act].b, .3));
-  if (document.documentElement._bg !== bg) { document.documentElement._bg = bg; document.documentElement.style.setProperty('--bg', bg); }
+  if (document.documentElement._bg !== bg) { document.documentElement._bg = bg; document.documentElement.style.backgroundColor = bg; }
 
   /* only the current + next world's objects (deeper ones are just clutter in the middle) */
   objs.forEach(m => { const on = !!m.material.map && !(phone && m.userData.q > 2) && (m.userData.k === k || m.userData.k === k + 1) && fp < .05; const op = m.userData.k === k ? 1 : cl((p - .04) / .3);   /* next world's objects only fade in once the dive starts */
     if (m.material.opacity !== op) { m.material.opacity = op; m.userData.sh.material.opacity = .34 * op; last = ''; }
     if (m.visible !== (on && op > 0)) { m.visible = on && op > 0; last = ''; } m.userData.sh.visible = m.visible && !!m.userData.sh.material.map && !!defs[m.userData.k].lt; });
+  walls.forEach((w, n) => { const v = fp > 0 || (n >= k && n <= k + 2); if (w.visible !== v) { w.visible = v; last = ''; } });
   const key = [camZ, vx, vy, lx, ly, fp, W, H, texLoaded].map(v => Math.round(v * 1000)).join();
   if (key === last) return;
   last = key;
