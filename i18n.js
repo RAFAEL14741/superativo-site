@@ -180,7 +180,7 @@ window.I18N = {
     if (l === L || !OK.includes(l)) return; L = l;
     try { localStorage.setItem('sa-lang', l); } catch (e) {}
     paint(); subs.forEach(f => { try { f(L); } catch (e) { console.error(e); } });
-    dispatchEvent(new Event('resize'));
+    dispatchEvent(new Event('sa-lang'));
   },
   init() { collect(); document.querySelectorAll('.lsw button').forEach(b => b.addEventListener('click', () => I18N.set(b.dataset.lang))); paint(); },
 };

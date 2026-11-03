@@ -36,7 +36,7 @@ const PH = [[-.36, -.06, .2], [.37, -.16, .18], [.33, .12, .15]];
 /* ---------- renderer ---------- */
 const canvas = document.getElementById('stage');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mq.matches, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, mq.matches ? 1.5 : 2));
+renderer.setPixelRatio(Math.min(devicePixelRatio, mq.matches ? 1.35 : 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 const scene = new THREE.Scene();
 const FOV = 35, tanH = Math.tan(FOV / 2 * Math.PI / 180);
@@ -123,8 +123,18 @@ defs.forEach((d, k) => d.props.forEach((p, q) => {
 
 /* ---------- layout (depends on screen) ---------- */
 let W = 0, H = 0, phone = false, R = 2.5, D = 6, VX = 0, VY = 0, CX = 0, CY = 0, holeSide = 0;
-function layout() {
-  W = innerWidth; H = innerHeight; phone = mq.matches;
+const touch = matchMedia('(pointer:coarse)').matches;
+const probe = document.createElement('div'); probe.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:100vh;height:100lvh;visibility:hidden;pointer-events:none';
+document.body.append(probe);
+/* section tops in page coordinates, so the per-frame loop never forces a layout */
+let secTop = [], lastSY = -1, lastG = '';
+function measure() { const y = scrollY; secTop = secs.map(s => s.getBoundingClientRect().top + y); lastSY = -1; }
+new ResizeObserver(measure).observe(document.body);
+function layout(e) {
+  const nw = innerWidth;
+  /* touch: a height-only resize is the address bar sliding in/out; ignore it (that was the "shake" on scroll-up) */
+  if (e && touch && nw === W) return;
+  W = nw; H = touch ? Math.max(probe.offsetHeight, innerHeight) : innerHeight; phone = mq.matches;
   renderer.setSize(W, H, false); cam.aspect = W / H;
   if (phone) {                                  /* fit by width AND height: apex stays >= 80px below the top (header) */
     CX = W * .5; CY = H * .3; holeSide = Math.min(W * .66, (CY - 80) * 1.5 / .866);
@@ -135,7 +145,7 @@ function layout() {
   R = .866 * H / (2 * tanH * holeSide * .866);   /* camera distance where the window is holeSide px wide */
   D = R * 2.3;
   walls.forEach((w, k) => { w.position.set(-DIVE.x, -DIVE.y, -k * D); w.children[0].material.uniforms.uR.value = R * .8; });
-  place();
+  place(); measure();
 }
 const restS = n => -n * D + R, restE = n => -n * D + R * .86;
 function place() {
@@ -169,8 +179,12 @@ function place() {
 /* ---------- per frame: where is the camera? ---------- */
 let last = '';
 const css = (el, k, v) => { if (el['_' + k] !== v) { el['_' + k] = v; el.style[k] = v; } };
+const bgCache = {};
 function frame() {
-  const tops = secs.map(s => s.getBoundingClientRect().top);
+  const sy = scrollY, gk = G.tx + ',' + G.ty + ',' + G.intro;
+  if (sy === lastSY && gk === lastG && last !== '') return;   /* nothing moved: no work at all */
+  lastSY = sy; lastG = gk;
+  const tops = secTop.map(t => t - sy);
   const Zs = H * (phone ? .6 : .66), Ze = H * (phone ? .26 : .3);   /* short dive: fewer in-between frames */
   let k = 0; for (let n = 1; n <= N; n++) if (tops[n] <= Ze) k = n;
   let camZ, p = 0, fp = 0;
@@ -202,8 +216,8 @@ function frame() {
     if (el._o !== o) { el._o = o; el.style.setProperty('--o', o); } css(el, 'pointerEvents', o < .2 ? 'none' : '');  /* text fades, its panel stays solid */
   });
   const dark = !defs[act].lt;
-  document.body.classList.toggle('dk', dark);
-  const bg = mixHex(defs[act].a, defs[act].b, .3);
+  if (document.body._dk !== dark) { document.body._dk = dark; document.body.classList.toggle('dk', dark); }
+  const bg = bgCache[act] || (bgCache[act] = mixHex(defs[act].a, defs[act].b, .3));
   if (document.documentElement._bg !== bg) { document.documentElement._bg = bg; document.documentElement.style.setProperty('--bg', bg); }
 
   /* only the current + next world's objects (deeper ones are just clutter in the middle) */
